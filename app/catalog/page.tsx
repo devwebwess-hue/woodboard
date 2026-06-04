@@ -9,6 +9,8 @@ import type { ProductCardProps } from '@/components/ProductCard'
 import Link from 'next/link'
 import { BackButton } from '@/components/BackButton'
 
+export const dynamic = 'force-dynamic'
+
 type Product = Omit<ProductCardProps, 'onAddToQuote'>
 
 /* ─── Mock product data ─────────────────────────────────────────── */

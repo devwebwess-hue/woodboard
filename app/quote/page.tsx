@@ -9,6 +9,8 @@ import { BackButton } from '@/components/BackButton'
 import Link from 'next/link'
 import { useQuote } from '@/context/QuoteContext'
 
+export const dynamic = 'force-dynamic'
+
 const MATERIAL_OPTIONS = [
   'Panneaux MDF Standard',
   'Panneaux MDF Hydrofuge (HMR)',
