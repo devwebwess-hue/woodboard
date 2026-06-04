@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, AlertCircle, Send, MapPin, Phone, Mail, Trash2, ArrowRight, Layers, Ruler } from 'lucide-react'
-import { isSupabaseConfigured } from '@/lib/supabase'
 import { createClient } from '@/utils/supabase/client'
 import { BackButton } from '@/components/BackButton'
 import Link from 'next/link'
@@ -51,6 +50,11 @@ const label =
 
 export default function QuotePage() {
   const supabase = createClient()
+  const isSupabaseConfigured = 
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && 
+    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-project')
+
   const { items, removeFromQuote, clearQuote } = useQuote()
   const [form, setForm] = useState<FormData>(INITIAL_FORM)
   const [status, setStatus] = useState<Status>('idle')

@@ -4,10 +4,10 @@ import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, ArrowRight, Filter } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import type { ProductCardProps } from '@/components/ProductCard'
 import Link from 'next/link'
 import { BackButton } from '@/components/BackButton'
+import { createClient } from '@/utils/supabase/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -111,6 +111,12 @@ function CheckIcon() {
 
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function CatalogPage() {
+  const supabase = createClient()
+  const isSupabaseConfigured = 
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && 
+    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-project')
+
   const [selectedCategory, setSelectedCategory] = useState<Category>('Tous')
   const [selectedThickness, setSelectedThickness] = useState<Thickness>('Toutes')
   const [searchQuery, setSearchQuery] = useState('')
