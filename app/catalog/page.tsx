@@ -476,7 +476,7 @@ export default function CatalogPage() {
                       exit={{ opacity: 0, scale: 0.96 }}
                       transition={{ duration: 0.22 }}
                     >
-                      <ProductCard {...product} onAddToQuote={handleAddToQuote} />
+                      <ProductCard {...product} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
