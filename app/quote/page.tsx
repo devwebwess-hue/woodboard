@@ -6,6 +6,7 @@ import { CheckCircle, AlertCircle, Send, MapPin, Phone, Mail, Trash2, ArrowRight
 import { BackButton } from '@/components/BackButton'
 import Link from 'next/link'
 import { useQuote } from '@/context/QuoteContext'
+import { submitQuoteAction } from '@/app/actions/submitQuote'
 
 
 
@@ -64,19 +65,43 @@ export default function QuotePage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Basic validation
+
+    // ── Client-side validation ────────────────────────────────────
     if (!form.company_name.trim() || !form.contact_name.trim() || !form.email.trim() || !form.project_specs.trim()) {
       setErrorMessage('Veuillez remplir tous les champs obligatoires.')
       setStatus('error')
       return
     }
+
     setStatus('loading')
     setErrorMessage('')
-    // Simulate network delay for UX feedback, then show success
-    await new Promise((resolve) => setTimeout(resolve, 900))
-    setStatus('success')
-    setForm(INITIAL_FORM)
-    clearQuote()
+
+    try {
+      // ── Server Action call — Supabase stays server-side ──────────
+      const result = await submitQuoteAction(
+        {
+          company_name:  form.company_name,
+          contact_name:  form.contact_name,
+          email:         form.email,
+          phone:         form.phone,
+          material_type: form.material_type,
+          project_specs: form.project_specs,
+        },
+        items   // full QuoteItem[] from global context
+      )
+
+      if (result.success) {
+        setStatus('success')
+        setForm(INITIAL_FORM)
+        clearQuote()   // empty the global cart after successful submission
+      } else {
+        setErrorMessage(result.error ?? 'Une erreur est survenue. Contactez-nous directement.')
+        setStatus('error')
+      }
+    } catch (err) {
+      setErrorMessage('Erreur réseau. Vérifiez votre connexion et réessayez.')
+      setStatus('error')
+    }
   }
 
   return (
