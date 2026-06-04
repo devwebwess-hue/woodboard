@@ -7,6 +7,7 @@ import ProductCard from '@/components/ProductCard'
 import type { ProductCardProps } from '@/components/ProductCard'
 import Link from 'next/link'
 import { BackButton } from '@/components/BackButton'
+import { useQuote } from '@/context/QuoteContext'
 
 type Product = Omit<ProductCardProps, 'onAddToQuote'>
 
@@ -108,12 +109,12 @@ function CheckIcon() {
 
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function CatalogPage() {
-  /* All hooks unconditionally at top — no early returns before this block */
+  /* All hooks unconditionally at top */
+  const { items: cartItems } = useQuote()   // ← single source of truth
   const [selectedCategory, setSelectedCategory] = useState<Category>('Tous')
   const [selectedThickness, setSelectedThickness] = useState<Thickness>('Toutes')
   const [searchQuery, setSearchQuery] = useState('')
   const [showMobileFilters, setShowMobileFilters] = useState(false)
-  const [quoteItems, setQuoteItems] = useState<Set<string>>(new Set())
 
   const filtered = useMemo(() => {
     return PRODUCTS.filter((p) => {
@@ -128,14 +129,6 @@ export default function CatalogPage() {
       return catMatch && thickMatch && searchMatch
     })
   }, [selectedCategory, selectedThickness, searchQuery])
-
-  const handleAddToQuote = (id: string) => {
-    setQuoteItems((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
 
   const hasActiveFilters = selectedCategory !== 'Tous' || selectedThickness !== 'Toutes'
 
@@ -432,14 +425,15 @@ export default function CatalogPage() {
                 <span className="font-bold text-[#1A1C20]">{filtered.length}</span>{' '}
                 produit{filtered.length !== 1 ? 's' : ''}
               </p>
-              {quoteItems.size > 0 && (
+              {/* Meta bar — driven by global cart state, always in sync */}
+              {cartItems.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="flex items-center gap-3"
                 >
-                  <span className="text-xs text-zinc-400">
-                    {quoteItems.size} sélectionné{quoteItems.size > 1 ? 's' : ''}
+                  <span className="text-xs text-zinc-500 font-medium">
+                    {cartItems.length} sélectionné{cartItems.length > 1 ? 's' : ''}
                   </span>
                   <Link
                     href="/quote"
