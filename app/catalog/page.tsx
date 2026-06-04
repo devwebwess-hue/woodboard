@@ -111,13 +111,13 @@ function CheckIcon() {
 
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function CatalogPage() {
+  // All hooks are declared unconditionally at the top — no early returns before this block
   const [supabase] = useState(() => createClient())
-
   const [selectedCategory, setSelectedCategory] = useState<Category>('Tous')
   const [selectedThickness, setSelectedThickness] = useState<Thickness>('Toutes')
   const [searchQuery, setSearchQuery] = useState('')
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS)
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [quoteItems, setQuoteItems] = useState<Set<string>>(new Set())
 
@@ -125,7 +125,7 @@ export default function CatalogPage() {
     // supabase is null when env vars are missing or during SSR — fall back to mock data
     if (!supabase) return
     const fetchProducts = async () => {
-      setLoading(true)
+      setIsLoading(true)
       try {
         const { data, error } = await supabase.from('products').select('*')
         if (error || !data || data.length === 0) throw new Error('Fallback')
@@ -133,18 +133,18 @@ export default function CatalogPage() {
       } catch {
         setProducts(MOCK_PRODUCTS)
       } finally {
-        setLoading(false)
+        setIsLoading(false)
       }
     }
     fetchProducts()
   }, [supabase])
 
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    return (products || MOCK_PRODUCTS).filter((p) => {
       const catMatch = selectedCategory === 'Tous' || p.category === selectedCategory
-      const thickMatch = selectedThickness === 'Toutes' || p.thicknesses.includes(selectedThickness)
+      const thickMatch = selectedThickness === 'Toutes' || (p.thicknesses || []).includes(selectedThickness)
       const q = searchQuery.toLowerCase()
-      const searchMatch = !q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.finish.toLowerCase().includes(q)
+      const searchMatch = !q || (p.name || '').toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.finish || '').toLowerCase().includes(q)
       return catMatch && thickMatch && searchMatch
     })
   }, [products, selectedCategory, selectedThickness, searchQuery])
@@ -164,6 +164,9 @@ export default function CatalogPage() {
     setSelectedThickness('Toutes')
     setSearchQuery('')
   }
+
+  // Safe list — always an array, never undefined
+  const safeProducts: Product[] = Array.isArray(products) ? products : MOCK_PRODUCTS
 
   return (
     <div className="min-h-screen bg-[#F9F9F6] pt-[68px]">
@@ -409,13 +412,13 @@ export default function CatalogPage() {
             </div>
 
             {/* Grid states */}
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="h-80 bg-zinc-200 animate-pulse" />
                 ))}
               </div>
-            ) : filtered.length === 0 ? (
+            ) : (filtered || []).length === 0 ? (
               <div className="text-center py-28">
                 <Filter size={32} className="mx-auto text-zinc-300 mb-5" />
                 <p className="text-[#1A1C20] font-bold text-xl tracking-tight mb-2">
@@ -432,9 +435,9 @@ export default function CatalogPage() {
                 </button>
               </div>
             ) : (
-              <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
                 <AnimatePresence mode="popLayout">
-                  {filtered.map((product) => (
+                  {(filtered || []).map((product) => (
                     <motion.div
                       key={product.id}
                       layout

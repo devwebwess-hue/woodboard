@@ -191,12 +191,12 @@ export default function HomePage() {
               <motion.div
                 variants={fadeUp}
                 custom={4}
-                className="grid grid-cols-3 gap-8 pt-8 border-t border-white/8 max-w-lg"
+                className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4 pt-8 pb-12 border-t border-white/8 max-w-lg"
               >
                 {[
                   { value: '15+', label: "Années d'expertise" },
                   { value: '500+', label: 'Références stock' },
-                  { value: '1 000+', label: 'Clients B2B' },
+                  { value: '1 000+', label: 'Clients B2B' },
                 ].map((stat) => (
                   <div key={stat.label}>
                     <p className="text-3xl font-black text-white mb-1 tracking-tight">{stat.value}</p>
@@ -401,7 +401,7 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-zinc-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-zinc-100 mt-10">
             {textureLines.map((texture, i) => (
               <motion.div
                 key={texture.name}
