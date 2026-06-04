@@ -1,16 +1,21 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-inter), system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    'Helvetica Neue', sans-serif;
 
-  --color-sage: #59624F;
+  --color-sage:      #59624F;
   --color-sage-dark: #454e3d;
-  --color-bone: #F9F9F6;
-  --color-charcoal: #1A1C20;
+  --color-bone:      #F9F9F6;
+  --color-charcoal:  #1A1C20;
+  --color-gold:      #D9A05B;
 }
 
+/* ── Base ─────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
+  /* Prevents layout shift caused by scrollbar appearing */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -19,14 +24,39 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #1A1C20;
   background: #ffffff;
+  /* Improve text rendering across all browsers */
+  text-rendering: optimizeLegibility;
 }
 
+/* ── Performance — defer render of off-screen sections ───────────── */
+/*
+  content-visibility: auto tells the browser it can skip painting and
+  layout of elements that are fully outside the viewport, cutting
+  initial render cost on long pages.
+*/
+section,
+footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px; /* fallback height estimate */
+}
+
+/* ── Selection ────────────────────────────────────────────────────── */
 ::selection {
   background-color: #D9A05B;
   color: #ffffff;
 }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #f4f4f5; }
-::-webkit-scrollbar-thumb { background: #1A1C20; border-radius: 0; }
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: #f4f4f5; }
+::-webkit-scrollbar-thumb  { background: #1A1C20; border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: #D9A05B; }
+
+/* ── Focus-visible — keyboard nav only, no mouse outlines ────────── */
+:focus-visible {
+  outline: 2px solid #D9A05B;
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
