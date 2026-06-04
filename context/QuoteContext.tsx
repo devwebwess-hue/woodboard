@@ -15,9 +15,7 @@ export interface QuoteItem {
 interface QuoteContextType {
   items: QuoteItem[]
   toggleProduct: (product: QuoteItem) => void
-  addToQuote: (item: QuoteItem) => void
   removeFromQuote: (id: string) => void
-  isInQuote: (id: string) => boolean
   clearQuote: () => void
 }
 
@@ -35,7 +33,10 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed)) setItems(parsed)
+        if (Array.isArray(parsed)) {
+          // Normalise: force every id to a string so comparisons never fail
+          setItems(parsed.map((item: QuoteItem) => ({ ...item, id: String(item.id) })))
+        }
       }
     } catch {
       // localStorage unavailable or corrupt — start with empty cart
@@ -53,40 +54,31 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
     }
   }, [items, mounted])
 
-  // ── Single authoritative toggle ──────────────────────────────────
+  // ── Single authoritative toggle with aggressive String() coercion ──
   const toggleProduct = useCallback((product: QuoteItem) => {
+    const normalisedProduct = { ...product, id: String(product.id) }
     setItems((prev) => {
-      const exists = prev.some((i) => i.id === product.id)
-      return exists
-        ? prev.filter((i) => i.id !== product.id)   // remove
-        : [...prev, product]                          // add
-    })
-  }, [])
-
-  const addToQuote = useCallback((item: QuoteItem) => {
-    setItems((prev) => {
-      if (prev.some((i) => i.id === item.id)) return prev
-      return [...prev, item]
+      const isExisting = prev.find(
+        (item) => String(item.id) === String(normalisedProduct.id)
+      )
+      if (isExisting) {
+        return prev.filter((item) => String(item.id) !== String(normalisedProduct.id))
+      } else {
+        return [...prev, normalisedProduct]
+      }
     })
   }, [])
 
   const removeFromQuote = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id))
+    setItems((prev) => prev.filter((item) => String(item.id) !== String(id)))
   }, [])
-
-  const isInQuote = useCallback(
-    (id: string) => items.some((i) => i.id === id),
-    [items]
-  )
 
   const clearQuote = useCallback(() => {
     setItems([])
   }, [])
 
   return (
-    <QuoteContext.Provider
-      value={{ items, toggleProduct, addToQuote, removeFromQuote, isInQuote, clearQuote }}
-    >
+    <QuoteContext.Provider value={{ items, toggleProduct, removeFromQuote, clearQuote }}>
       {children}
     </QuoteContext.Provider>
   )

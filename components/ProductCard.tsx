@@ -28,12 +28,12 @@ export default function ProductCard({
   gradient,
   onAddToQuote,
 }: ProductCardProps) {
-  // ── Button state derived PURELY from global context — no local state ──
-  const { toggleProduct, isInQuote } = useQuote()
-  const inCart = isInQuote(id)
+  // ── Derive state directly from live items array — no memoized function, no stale closure ──
+  const { items, toggleProduct } = useQuote()
+  const inCart = items.some((item) => String(item.id) === String(id))
 
   const handleToggle = () => {
-    toggleProduct({ id, name, category, thicknesses, dimensions, finish, gradient })
+    toggleProduct({ id: String(id), name, category, thicknesses, dimensions, finish, gradient })
     onAddToQuote?.(id)
   }
 
