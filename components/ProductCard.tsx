@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Ruler, Layers, Check } from 'lucide-react'
 import { BrandRibbon } from './BrandRibbon'
@@ -14,6 +15,7 @@ export interface ProductCardProps {
   finish: string
   description: string
   gradient: string
+  image?: string          // optional real photo path, e.g. /products/mdf.jpg
   onAddToQuote?: (id: string) => void
 }
 
@@ -26,9 +28,9 @@ export default function ProductCard({
   finish,
   description,
   gradient,
+  image,
   onAddToQuote,
 }: ProductCardProps) {
-  // ── Derive state directly from live items array — no memoized function, no stale closure ──
   const { items, toggleProduct } = useQuote()
   const inCart = items.some((item) => String(item.id) === String(id))
 
@@ -43,40 +45,53 @@ export default function ProductCard({
       transition={{ duration: 0.28, ease: 'easeOut' }}
       className="bg-white shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group"
     >
-      {/* Material swatch */}
+      {/* ── Material swatch / real photo ───────────────────────────── */}
       <div
         className="h-52 relative overflow-hidden flex-shrink-0"
-        style={{ background: gradient }}
+        /* gradient is the CSS fallback shown before the image loads */
+        style={image ? undefined : { background: gradient }}
         role="img"
         aria-label={`Aperçu texture — ${name}`}
       >
-        {/* Depth gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+        {/* Real product image (fills the swatch area) */}
+        {image && (
+          <Image
+            src={image}
+            alt={`Texture ${name}`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover"
+            priority={false}
+          />
+        )}
+
+        {/* Dark vignette — sits above the photo so badges are always readable */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent z-10" />
 
         {/* Hover shimmer */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/8 to-transparent" />
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/8 to-transparent z-10" />
 
         {/* Brand Ribbon */}
-        <div className="absolute top-0 left-0 z-10">
+        <div className="absolute top-0 left-0 z-20">
           <BrandRibbon width={28} height={44} />
         </div>
 
         {/* Finish badge */}
-        <div className="absolute top-3 right-3 z-10">
-          <span className="bg-black/30 backdrop-blur-md text-white text-[8.5px] font-semibold tracking-[0.22em] uppercase px-2.5 py-1.5 border border-white/10">
+        <div className="absolute top-3 right-3 z-20">
+          <span className="bg-black/40 backdrop-blur-md text-white text-[8.5px] font-semibold tracking-[0.22em] uppercase px-2.5 py-1.5 border border-white/10">
             {finish}
           </span>
         </div>
 
         {/* Category chip */}
-        <div className="absolute bottom-3 left-3 z-10">
-          <span className="bg-white/15 backdrop-blur-md text-white text-[8px] font-bold tracking-[0.25em] uppercase px-2.5 py-1 border border-white/15">
+        <div className="absolute bottom-3 left-3 z-20">
+          <span className="bg-black/30 backdrop-blur-md text-white text-[8px] font-bold tracking-[0.25em] uppercase px-2.5 py-1 border border-white/15">
             {category === 'Worktop' ? 'Plan de Travail' : category}
           </span>
         </div>
       </div>
 
-      {/* Content */}
+      {/* ── Content ────────────────────────────────────────────────── */}
       <div className="p-5 flex flex-col flex-1 gap-3.5">
         <div>
           <h3 className="font-sans font-bold text-[#1A1C20] text-[1rem] leading-tight tracking-tight mb-1.5">
@@ -111,7 +126,7 @@ export default function ProductCard({
           </div>
         </div>
 
-        {/* CTA — visual state 100% from context */}
+        {/* CTA */}
         <div className="mt-auto pt-1">
           <button
             id={`add-to-quote-${id}`}
