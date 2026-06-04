@@ -17,11 +17,6 @@ export interface SubmitQuoteResult {
   error?: string
 }
 
-/**
- * Server Action — inserts a B2B quote request into Supabase.
- * Uses the admin client (service role key) so RLS never blocks the insert.
- * Zero Supabase code reaches the browser.
- */
 export async function submitQuoteAction(
   data: {
     company_name: string
@@ -34,7 +29,7 @@ export async function submitQuoteAction(
   cartItems: CartItem[]
 ): Promise<SubmitQuoteResult> {
 
-  // ── Server-side validation ────────────────────────────────────────
+  // ── 1. Server-side validation ────────────────────────────────────
   if (!data.company_name?.trim())
     return { success: false, error: "Le nom de l'entreprise est requis." }
   if (!data.contact_name?.trim())
@@ -48,7 +43,7 @@ export async function submitQuoteAction(
   if (!emailRegex.test(data.email))
     return { success: false, error: 'Adresse email invalide.' }
 
-  // ── Build the row ─────────────────────────────────────────────────
+  // ── 2. Build the row ─────────────────────────────────────────────
   const payload = {
     company_name:  data.company_name.trim(),
     contact_name:  data.contact_name.trim(),
@@ -57,46 +52,57 @@ export async function submitQuoteAction(
     material_type: data.material_type?.trim() ||
       (cartItems.length > 0 ? cartItems[0].category : null),
     project_specs: data.project_specs.trim(),
-    cart_items:    cartItems,          // JSONB column
+    cart_items:    cartItems,
     cart_summary:  cartItems.length > 0
       ? cartItems.map((i) => `${i.name} (${i.category} · ${i.finish})`).join(', ')
       : null,
     submitted_at:  new Date().toISOString(),
   }
 
-  console.log('[submitQuoteAction] Payload ready — attempting Supabase insert:', {
-    company: payload.company_name,
-    email:   payload.email,
-    items:   cartItems.length,
-  })
+  console.log('=== [submitQuoteAction] START ===')
+  console.log('company:', payload.company_name)
+  console.log('email:  ', payload.email)
+  console.log('items:  ', cartItems.length)
 
-  // ── Insert via admin client (bypasses RLS) ────────────────────────
+  // ── 3. Instantiate client ────────────────────────────────────────
+  let supabase: ReturnType<typeof createAdminClient>
   try {
-    const supabase = createAdminClient()
-    const { data: inserted, error } = await supabase
+    supabase = createAdminClient()
+    console.log('[submitQuoteAction] Admin client created OK')
+  } catch (clientErr) {
+    const msg = clientErr instanceof Error ? clientErr.message : String(clientErr)
+    console.error('[submitQuoteAction] FAILED to create admin client:', msg)
+    return { success: false, error: `Client error: ${msg}` }
+  }
+
+  // ── 4. Insert ────────────────────────────────────────────────────
+  try {
+    const { data: rows, error, status, statusText } = await supabase
       .from('quotes')
       .insert([payload])
-      .select()   // returns inserted row so we can confirm success
+      .select()
+
+    console.log('[submitQuoteAction] Insert response — status:', status, statusText)
 
     if (error) {
-      console.error('[submitQuoteAction] Supabase error:', {
-        code:    error.code,
-        message: error.message,
-        details: error.details,
-        hint:    error.hint,
-      })
+      // Log every field so nothing is hidden
+      console.error('=== SUPABASE INSERT ERROR ===')
+      console.error('code:   ', error.code)
+      console.error('message:', error.message)
+      console.error('details:', error.details)
+      console.error('hint:   ', error.hint)
       return {
         success: false,
-        error: `Erreur base de données (${error.code}): ${error.message}`,
+        error: `DB error [${error.code}]: ${error.message}${error.hint ? ` — Hint: ${error.hint}` : ''}`,
       }
     }
 
-    console.log('[submitQuoteAction] Insert successful. Row id:', inserted?.[0]?.id)
+    console.log('[submitQuoteAction] SUCCESS — row id:', rows?.[0]?.id ?? 'no id returned')
     return { success: true }
 
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[submitQuoteAction] Unexpected exception:', msg)
-    return { success: false, error: msg }
+  } catch (insertErr) {
+    const msg = insertErr instanceof Error ? insertErr.message : String(insertErr)
+    console.error('[submitQuoteAction] EXCEPTION during insert:', msg)
+    return { success: false, error: `Insert exception: ${msg}` }
   }
 }
