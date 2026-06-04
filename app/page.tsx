@@ -146,14 +146,13 @@ export default function HomePage() {
                 </span>
               </motion.div>
 
-              {/* Headline — large clean sans-serif */}
+              {/* Headline */}
               <motion.h1
                 variants={fadeUp}
                 custom={1}
-                className="font-black text-white leading-[1.02] tracking-tight mb-8"
-                style={{ fontSize: 'clamp(2.0rem, 6.5vw, 5.2rem)' }}
+                className="font-black text-white leading-tight sm:leading-none tracking-tight mb-8 text-4xl sm:text-6xl"
               >
-                L'Excellence du<br />
+                L’Excellence du<br />
                 <span className="text-[#D9A05B]">Panneau</span><br />
                 Décoratif.
               </motion.h1>
@@ -191,16 +190,16 @@ export default function HomePage() {
               <motion.div
                 variants={fadeUp}
                 custom={4}
-                className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-4 pt-8 pb-12 border-t border-white/8 max-w-lg"
+                className="grid grid-cols-1 gap-8 pt-8 pb-16 border-t border-white/10 max-w-lg sm:grid-cols-3 sm:gap-4 sm:pt-12"
               >
                 {[
                   { value: '15+', label: "Années d'expertise" },
                   { value: '500+', label: 'Références stock' },
-                  { value: '1 000+', label: 'Clients B2B' },
+                  { value: '1 000+', label: 'Clients B2B' },
                 ].map((stat) => (
                   <div key={stat.label}>
                     <p className="text-3xl font-black text-white mb-1 tracking-tight">{stat.value}</p>
-                    <p className="text-white/22 text-[9.5px] tracking-widest uppercase font-medium">{stat.label}</p>
+                    <p className="text-white/40 text-[9.5px] tracking-widest uppercase font-medium">{stat.label}</p>
                   </div>
                 ))}
               </motion.div>
