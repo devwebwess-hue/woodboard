@@ -56,7 +56,7 @@ export async function submitQuoteAction(
     cart_summary:  cartItems.length > 0
       ? cartItems.map((i) => `${i.name} (${i.category} · ${i.finish})`).join(', ')
       : null,
-    submitted_at:  new Date().toISOString(),
+    // submitted_at removed — Supabase auto-populates created_at
   }
 
   console.log('=== [submitQuoteAction] START ===')
