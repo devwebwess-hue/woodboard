@@ -1,24 +1,21 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, ArrowRight, Filter } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
 import type { ProductCardProps } from '@/components/ProductCard'
 import Link from 'next/link'
 import { BackButton } from '@/components/BackButton'
-import { createClient } from '@/utils/supabase/client'
-
-export const dynamic = 'force-dynamic'
 
 type Product = Omit<ProductCardProps, 'onAddToQuote'>
 
-/* ─── Mock product data ─────────────────────────────────────────── */
-const MOCK_PRODUCTS: Product[] = [
+/* ─── Product data ──────────────────────────────────────────────── */
+const PRODUCTS: Product[] = [
   {
     id: '1', name: 'MDF Standard Brut', category: 'MDF',
     thicknesses: ['12mm', '16mm', '18mm'], dimensions: '2440 × 1220 mm', finish: 'Brut',
-    description: 'Panneau MDF haute densité brut, idéal pour la fabrication de mobilier, l\'ébénisterie et les projets de construction intérieure.',
+    description: "Panneau MDF haute densité brut, idéal pour la fabrication de mobilier, l'ébénisterie et les projets de construction intérieure.",
     gradient: 'linear-gradient(145deg, #E8DFD0 0%, #D0C5B0 50%, #B8AA94 100%)',
   },
   {
@@ -42,13 +39,13 @@ const MOCK_PRODUCTS: Product[] = [
   {
     id: '5', name: 'Noyer Américain Premium', category: 'Melamine',
     thicknesses: ['16mm', '18mm'], dimensions: '2440 × 1220 mm', finish: 'Premier Matt',
-    description: 'Décor noyer américain aux veines profondes et expressives pour un mobilier de caractère et d\'élégance.',
+    description: "Décor noyer américain aux veines profondes et expressives pour un mobilier de caractère et d'élégance.",
     gradient: 'linear-gradient(145deg, #5C4033 0%, #44301F 50%, #2E200E 100%)',
   },
   {
     id: '6', name: 'Plan de Travail Marbre Blanc', category: 'Worktop',
     thicknesses: ['22mm', '38mm'], dimensions: '3600 × 600 mm', finish: 'High Gloss',
-    description: 'Décor marbre blanc de Carrare, surface post-formée résistante à la chaleur et à l\'humidité pour cuisines professionnelles.',
+    description: "Décor marbre blanc de Carrare, surface post-formée résistante à la chaleur et à l'humidité pour cuisines professionnelles.",
     gradient: 'linear-gradient(145deg, #F0EEE8 0%, #E0DDD4 50%, #C4C0B4 100%)',
   },
   {
@@ -111,43 +108,26 @@ function CheckIcon() {
 
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function CatalogPage() {
-  // All hooks are declared unconditionally at the top — no early returns before this block
-  const [supabase] = useState(() => createClient())
+  /* All hooks unconditionally at top — no early returns before this block */
   const [selectedCategory, setSelectedCategory] = useState<Category>('Tous')
   const [selectedThickness, setSelectedThickness] = useState<Thickness>('Toutes')
   const [searchQuery, setSearchQuery] = useState('')
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS)
-  const [isLoading, setIsLoading] = useState(false)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [quoteItems, setQuoteItems] = useState<Set<string>>(new Set())
 
-  useEffect(() => {
-    // supabase is null when env vars are missing or during SSR — fall back to mock data
-    if (!supabase) return
-    const fetchProducts = async () => {
-      setIsLoading(true)
-      try {
-        const { data, error } = await supabase.from('products').select('*')
-        if (error || !data || data.length === 0) throw new Error('Fallback')
-        setProducts(data as Product[])
-      } catch {
-        setProducts(MOCK_PRODUCTS)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchProducts()
-  }, [supabase])
-
   const filtered = useMemo(() => {
-    return (products || MOCK_PRODUCTS).filter((p) => {
+    return PRODUCTS.filter((p) => {
       const catMatch = selectedCategory === 'Tous' || p.category === selectedCategory
       const thickMatch = selectedThickness === 'Toutes' || (p.thicknesses || []).includes(selectedThickness)
       const q = searchQuery.toLowerCase()
-      const searchMatch = !q || (p.name || '').toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.finish || '').toLowerCase().includes(q)
+      const searchMatch =
+        !q ||
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q) ||
+        (p.finish || '').toLowerCase().includes(q)
       return catMatch && thickMatch && searchMatch
     })
-  }, [products, selectedCategory, selectedThickness, searchQuery])
+  }, [selectedCategory, selectedThickness, searchQuery])
 
   const handleAddToQuote = (id: string) => {
     setQuoteItems((prev) => {
@@ -164,9 +144,6 @@ export default function CatalogPage() {
     setSelectedThickness('Toutes')
     setSearchQuery('')
   }
-
-  // Safe list — always an array, never undefined
-  const safeProducts: Product[] = Array.isArray(products) ? products : MOCK_PRODUCTS
 
   return (
     <div className="min-h-screen bg-[#F9F9F6] pt-[68px]">
@@ -216,8 +193,8 @@ export default function CatalogPage() {
             aria-expanded={showMobileFilters}
             aria-controls="mobile-filters-drawer"
           >
-            <Filter size={12} className={showMobileFilters ? "text-[#D9A05B]" : "text-[#1A1C20]"} />
-            <span>Filtres {hasActiveFilters && "·"}</span>
+            <Filter size={12} className={showMobileFilters ? 'text-[#D9A05B]' : 'text-[#1A1C20]'} />
+            <span>Filtres {hasActiveFilters && '·'}</span>
           </button>
         </div>
 
@@ -303,7 +280,7 @@ export default function CatalogPage() {
 
         <div className="flex gap-12">
 
-          {/* ── Sidebar: Minimal checklist ── */}
+          {/* ── Sidebar ── */}
           <aside className="w-44 flex-shrink-0 hidden md:block" aria-label="Filtres catalogue">
             <div className="sticky top-24 space-y-10">
 
@@ -320,7 +297,6 @@ export default function CatalogPage() {
                       onClick={() => setSelectedCategory(cat)}
                       className="flex items-center gap-3 w-full text-left py-2 group transition-colors"
                     >
-                      {/* Custom checkbox */}
                       <div
                         className={`w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                           selectedCategory === cat
@@ -411,14 +387,8 @@ export default function CatalogPage() {
               )}
             </div>
 
-            {/* Grid states */}
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-80 bg-zinc-200 animate-pulse" />
-                ))}
-              </div>
-            ) : (filtered || []).length === 0 ? (
+            {/* Grid */}
+            {filtered.length === 0 ? (
               <div className="text-center py-28">
                 <Filter size={32} className="mx-auto text-zinc-300 mb-5" />
                 <p className="text-[#1A1C20] font-bold text-xl tracking-tight mb-2">
@@ -437,7 +407,7 @@ export default function CatalogPage() {
             ) : (
               <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
                 <AnimatePresence mode="popLayout">
-                  {(filtered || []).map((product) => (
+                  {filtered.map((product) => (
                     <motion.div
                       key={product.id}
                       layout
