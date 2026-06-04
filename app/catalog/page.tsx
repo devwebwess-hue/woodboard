@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { BackButton } from '@/components/BackButton'
 import { useQuote } from '@/context/QuoteContext'
 
+// image field removed — swatches use pure CSS gradients
 type Product = Omit<ProductCardProps, 'onAddToQuote'>
 
 /* ─── Product data ──────────────────────────────────────────────── */
@@ -18,84 +19,72 @@ const PRODUCTS: Product[] = [
     thicknesses: ['12mm', '16mm', '18mm'], dimensions: '2440 × 1220 mm', finish: 'Brut',
     description: "Panneau MDF haute densité brut, idéal pour la fabrication de mobilier, l'ébénisterie et les projets de construction intérieure.",
     gradient: 'linear-gradient(160deg, #EDE4D6 0%, #DDD0BC 18%, #C8B99E 40%, #BAA888 60%, #A8956E 80%, #97845C 100%)',
-    image: '/products/mdf.jpg',
   },
   {
     id: '2', name: 'Mélamine Chêne Naturel', category: 'Melamine',
     thicknesses: ['16mm', '18mm'], dimensions: '2800 × 2070 mm', finish: 'Premier Matt',
     description: 'Décor chêne authentique finition mate douce pour un rendu naturel et chaleureux dans vos espaces de vie.',
     gradient: 'linear-gradient(135deg, #C49A5A 0%, #A87C40 15%, #BD9055 30%, #8B6530 45%, #C4924C 60%, #9A7038 75%, #7A5228 100%)',
-    image: '/products/melamine.jpg',
   },
   {
     id: '3', name: 'High Gloss Blanc Absolu', category: 'Melamine',
     thicknesses: ['18mm'], dimensions: '2800 × 2070 mm', finish: 'High Gloss',
     description: 'Surface ultra-brillante effet laqué, blanc pur pour cuisines et mobiliers contemporains de haut standing.',
     gradient: 'linear-gradient(120deg, #FFFFFF 0%, #F4F4F4 20%, #E8E8E8 38%, #FAFAFA 55%, #EEEEEE 72%, #E0E0E0 100%)',
-    image: '/products/gloss.jpg',
   },
   {
     id: '4', name: 'Super Matt Anthracite', category: 'Melamine',
     thicknesses: ['12mm', '16mm', '18mm'], dimensions: '2800 × 2070 mm', finish: 'Super Matt',
     description: 'Finition ultra-mate anthracite, anti-empreintes et résistante aux rayures pour un design épuré et sophistiqué.',
     gradient: 'linear-gradient(150deg, #4A4A50 0%, #363640 20%, #28282E 40%, #1E1E24 60%, #2A2A30 80%, #141418 100%)',
-    image: '/products/melamine.jpg',
   },
   {
     id: '5', name: 'Noyer Américain Premium', category: 'Melamine',
     thicknesses: ['16mm', '18mm'], dimensions: '2440 × 1220 mm', finish: 'Premier Matt',
     description: "Décor noyer américain aux veines profondes et expressives pour un mobilier de caractère et d'élégance.",
     gradient: 'linear-gradient(140deg, #6B4C35 0%, #3E2410 18%, #5C3A22 35%, #2E1A08 50%, #5A3820 65%, #3A2010 82%, #201008 100%)',
-    image: '/products/melamine.jpg',
   },
   {
     id: '6', name: 'Plan de Travail Marbre Blanc', category: 'Worktop',
     thicknesses: ['22mm', '38mm'], dimensions: '3600 × 600 mm', finish: 'High Gloss',
     description: "Décor marbre blanc de Carrare, surface post-formée résistante à la chaleur et à l'humidité pour cuisines professionnelles.",
     gradient: 'linear-gradient(110deg, #F5F3EF 0%, #EBE8E2 20%, #F2F0EC 35%, #D8D4CC 50%, #EDEAE4 65%, #C8C4BC 80%, #E8E4DC 100%)',
-    image: '/products/gloss.jpg',
   },
   {
     id: '7', name: 'MDF Hydrofuge (HMR)', category: 'MDF',
     thicknesses: ['12mm', '16mm', '18mm', '22mm'], dimensions: '2440 × 1220 mm', finish: 'Brut',
     description: 'Panneau MDF traité hydrofuge HMR, adapté aux espaces humides : salles de bain, cuisines, agencements extérieurs couverts.',
     gradient: 'linear-gradient(150deg, #6A7D60 0%, #4A5E42 22%, #3A5030 40%, #526844 58%, #3A5230 75%, #2A3C22 100%)',
-    image: '/products/mdf.jpg',
   },
   {
     id: '8', name: 'Mélamine Béton Gris', category: 'Melamine',
     thicknesses: ['16mm', '18mm'], dimensions: '2800 × 2070 mm', finish: 'Super Matt',
     description: 'Décor effet béton mat contemporain, tendance industrielle et urbaine pour meubles, cloisons et fonds de hotte.',
     gradient: 'linear-gradient(155deg, #9A9A9C 0%, #7C7C80 18%, #929294 32%, #686870 48%, #848488 64%, #5C5C62 80%, #787880 100%)',
-    image: '/products/melamine.jpg',
   },
   {
     id: '9', name: 'Plan de Travail Chêne Massif', category: 'Worktop',
     thicknesses: ['27mm', '40mm'], dimensions: '3600 × 900 mm', finish: 'Naturel Huilé',
     description: 'Plan de travail chêne massif traité huile naturelle pour une résistance optimale et un aspect authentique durable.',
     gradient: 'linear-gradient(135deg, #C4935A 0%, #A87840 18%, #B88848 35%, #8A6030 50%, #C09050 65%, #9A7238 82%, #7A5228 100%)',
-    image: '/products/melamine.jpg',
   },
   {
     id: '10', name: 'MDF Peint Blanc Signal', category: 'MDF',
     thicknesses: ['12mm', '16mm'], dimensions: '2440 × 1220 mm', finish: 'Laqué',
     description: 'MDF poncé et aprêté blanc signal RAL 9003, prêt pour finition laquée ou peint. Idéal pour menuiseries et portes.',
     gradient: 'linear-gradient(125deg, #FAFAFA 0%, #F0F0F0 25%, #FEFEFE 45%, #E8E8E8 65%, #F5F5F5 82%, #DCDCDC 100%)',
-    image: '/products/mdf.jpg',
   },
   {
     id: '11', name: 'Mélamine Rose Blush', category: 'Melamine',
     thicknesses: ['16mm', '18mm'], dimensions: '2800 × 2070 mm', finish: 'Premier Matt',
     description: 'Coloris rose blush tendance finition mate veloutée, pour dressings, têtes de lit et mobilier résidentiel contemporain.',
     gradient: 'linear-gradient(145deg, #E8B4AE 0%, #D4958E 20%, #C8847C 38%, #B87068 55%, #D09890 72%, #BC7870 100%)',
-    image: '/products/melamine.jpg',
   },
   {
     id: '12', name: 'Plan de Travail Quartz Noir', category: 'Worktop',
     thicknesses: ['30mm', '38mm'], dimensions: '3600 × 650 mm', finish: 'Super Matt',
     description: 'Plan de travail stratifié décor quartz noir mat anti-empreintes, résistant aux chocs thermiques.',
     gradient: 'linear-gradient(140deg, #2C2C30 0%, #18181C 22%, #242428 40%, #101014 58%, #1E1E22 75%, #0A0A0E 100%)',
-    image: '/products/melamine.jpg',
   },
 ]
 
