@@ -49,7 +49,7 @@ const label =
 
 export default function QuotePage() {
   /* All hooks declared unconditionally at top */
-  const { items, removeFromQuote, clearQuote } = useQuote()
+  const { items, toggleProduct, removeFromQuote, clearQuote } = useQuote()
   const [form, setForm] = useState<FormData>(INITIAL_FORM)
   const [status, setStatus] = useState<Status>('idle')
   const [errorMessage, setErrorMessage] = useState('')
@@ -128,7 +128,7 @@ export default function QuotePage() {
                     className="py-12 text-center"
                   >
                     <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
-                      Aucun matériau sélectionné. Visitez notre catalogue pour ajouter des échantillons à votre demande de devis.
+                      Aucun matériau sélectionné pour le moment. Visitez notre catalogue pour ajouter des produits à votre demande de devis.
                     </p>
                     <Link
                       href="/catalog"

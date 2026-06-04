@@ -32,12 +32,16 @@ export default function Navbar() {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
+  // Routes with a light/white background need a permanent dark navbar
+  const isLightRoute = pathname !== '/'
+  const solidBg = isLightRoute || scrolled
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${
-          scrolled
-            ? 'bg-[#1A1C20]/92 backdrop-blur-xl shadow-2xl shadow-black/30 border-b border-white/5'
+          solidBg
+            ? 'bg-[#1A1C20] border-b border-white/10 shadow-xl shadow-black/20'
             : 'bg-transparent'
         }`}
       >
@@ -96,7 +100,7 @@ export default function Navbar() {
             </Link>
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="md:hidden text-white/70 hover:text-white transition-colors p-1"
+              className="md:hidden text-white hover:text-[#D9A05B] transition-colors p-1"
               aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
               aria-expanded={mobileOpen}
             >

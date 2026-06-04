@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 
 export interface QuoteItem {
   id: string
@@ -14,11 +14,14 @@ export interface QuoteItem {
 
 interface QuoteContextType {
   items: QuoteItem[]
+  toggleProduct: (product: QuoteItem) => void
   addToQuote: (item: QuoteItem) => void
   removeFromQuote: (id: string) => void
   isInQuote: (id: string) => boolean
   clearQuote: () => void
 }
+
+const STORAGE_KEY = 'woodboard_quote_cart'
 
 const QuoteContext = createContext<QuoteContextType | undefined>(undefined)
 
@@ -26,50 +29,64 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<QuoteItem[]>([])
   const [mounted, setMounted] = useState(false)
 
-  // Load cart from localStorage after mount to prevent Next.js hydration mismatch
+  // ── Hydrate from localStorage AFTER mount to avoid SSR mismatch ──
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('woodboard_quote_cart')
+      const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
-        setItems(JSON.parse(stored))
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) setItems(parsed)
       }
-    } catch (e) {
-      console.error('Failed to parse quote cart from localStorage', e)
+    } catch {
+      // localStorage unavailable or corrupt — start with empty cart
     }
     setMounted(true)
   }, [])
 
-  // Persist to localStorage on change
+  // ── Persist on every change (only after first mount) ──
   useEffect(() => {
     if (!mounted) return
     try {
-      localStorage.setItem('woodboard_quote_cart', JSON.stringify(items))
-    } catch (e) {
-      console.error('Failed to save quote cart to localStorage', e)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+    } catch {
+      // Storage quota exceeded or unavailable — ignore
     }
   }, [items, mounted])
 
-  const addToQuote = (item: QuoteItem) => {
+  // ── Single authoritative toggle ──────────────────────────────────
+  const toggleProduct = useCallback((product: QuoteItem) => {
+    setItems((prev) => {
+      const exists = prev.some((i) => i.id === product.id)
+      return exists
+        ? prev.filter((i) => i.id !== product.id)   // remove
+        : [...prev, product]                          // add
+    })
+  }, [])
+
+  const addToQuote = useCallback((item: QuoteItem) => {
     setItems((prev) => {
       if (prev.some((i) => i.id === item.id)) return prev
       return [...prev, item]
     })
-  }
+  }, [])
 
-  const removeFromQuote = (id: string) => {
+  const removeFromQuote = useCallback((id: string) => {
     setItems((prev) => prev.filter((i) => i.id !== id))
-  }
+  }, [])
 
-  const isInQuote = (id: string) => {
-    return items.some((i) => i.id === id)
-  }
+  const isInQuote = useCallback(
+    (id: string) => items.some((i) => i.id === id),
+    [items]
+  )
 
-  const clearQuote = () => {
+  const clearQuote = useCallback(() => {
     setItems([])
-  }
+  }, [])
 
   return (
-    <QuoteContext.Provider value={{ items, addToQuote, removeFromQuote, isInQuote, clearQuote }}>
+    <QuoteContext.Provider
+      value={{ items, toggleProduct, addToQuote, removeFromQuote, isInQuote, clearQuote }}
+    >
       {children}
     </QuoteContext.Provider>
   )

@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { Ruler, Layers, Check } from 'lucide-react'
-import { useState } from 'react'
 import { BrandRibbon } from './BrandRibbon'
 import { useQuote } from '@/context/QuoteContext'
 
@@ -29,15 +28,12 @@ export default function ProductCard({
   gradient,
   onAddToQuote,
 }: ProductCardProps) {
-  const { addToQuote, removeFromQuote, isInQuote } = useQuote()
+  // ── Button state derived PURELY from global context — no local state ──
+  const { toggleProduct, isInQuote } = useQuote()
   const inCart = isInQuote(id)
 
-  const handleAdd = () => {
-    if (inCart) {
-      removeFromQuote(id)
-    } else {
-      addToQuote({ id, name, category, thicknesses, dimensions, finish, gradient })
-    }
+  const handleToggle = () => {
+    toggleProduct({ id, name, category, thicknesses, dimensions, finish, gradient })
     onAddToQuote?.(id)
   }
 
@@ -47,7 +43,7 @@ export default function ProductCard({
       transition={{ duration: 0.28, ease: 'easeOut' }}
       className="bg-white shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group"
     >
-      {/* Material swatch — image container */}
+      {/* Material swatch */}
       <div
         className="h-52 relative overflow-hidden flex-shrink-0"
         style={{ background: gradient }}
@@ -60,7 +56,7 @@ export default function ProductCard({
         {/* Hover shimmer */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/8 to-transparent" />
 
-        {/* Brand Ribbon — top-left of image container */}
+        {/* Brand Ribbon */}
         <div className="absolute top-0 left-0 z-10">
           <BrandRibbon width={28} height={44} />
         </div>
@@ -103,7 +99,7 @@ export default function ProductCard({
           <div className="flex items-start gap-1.5">
             <Layers size={10} className="text-[#D9A05B] mt-0.5 flex-shrink-0" />
             <div className="flex flex-wrap gap-1.5">
-              {thicknesses.map((t) => (
+              {(thicknesses || []).map((t) => (
                 <span
                   key={t}
                   className="bg-[#F9F9F6] text-[#1A1C20] text-[9px] font-black tracking-[0.2em] uppercase px-2.5 py-1 border border-zinc-100"
@@ -115,22 +111,23 @@ export default function ProductCard({
           </div>
         </div>
 
-        {/* CTA */}
+        {/* CTA — visual state 100% from context */}
         <div className="mt-auto pt-1">
           <button
             id={`add-to-quote-${id}`}
-            onClick={handleAdd}
-            className={`w-full flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase py-3 transition-all duration-250 ${
+            onClick={handleToggle}
+            className={`w-full flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.2em] uppercase py-3 transition-all duration-200 ${
               inCart
-                ? 'bg-[#D9A05B]/15 text-[#D9A05B] border border-[#D9A05B]/30'
+                ? 'bg-[#D9A05B]/15 text-[#D9A05B] border border-[#D9A05B]/40 hover:bg-[#D9A05B]/25'
                 : 'bg-[#1A1C20] hover:bg-[#D9A05B] text-white'
             }`}
-            aria-label={`Ajouter ${name} au devis`}
+            aria-label={inCart ? `Retirer ${name} du devis` : `Ajouter ${name} au devis`}
+            aria-pressed={inCart}
           >
             {inCart ? (
               <>
                 <Check size={11} strokeWidth={3} />
-                Ajouté ✓
+                Ajouté au devis ✓
               </>
             ) : (
               'Ajouter au Devis'
