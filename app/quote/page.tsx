@@ -49,7 +49,7 @@ const label =
   'block text-[8.5px] font-black text-zinc-400 tracking-[0.32em] uppercase mb-3'
 
 export default function QuotePage() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const isSupabaseConfigured = 
     Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && 
     !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') &&

@@ -111,7 +111,7 @@ function CheckIcon() {
 
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function CatalogPage() {
-  const supabase = createClient()
+  const [supabase] = useState(() => createClient())
   const isSupabaseConfigured = 
     Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && 
     !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') &&
