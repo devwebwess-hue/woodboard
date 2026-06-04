@@ -41,11 +41,12 @@ const INITIAL_FORM: FormData = {
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
+/* ── Shared field styles ──────────────────────────────────────── */
 const flushed =
-  'w-full border-0 border-b border-zinc-200 bg-transparent pb-3 pt-1 text-base text-[#1A1C20] placeholder:text-zinc-300 focus:outline-none focus:border-[#D9A05B] transition-colors duration-250 rounded-none px-0'
+  'w-full border-0 border-b border-zinc-200 bg-transparent pb-4 pt-2 text-sm text-[#1A1C20] placeholder:text-zinc-300 focus:outline-none focus:border-[#D9A05B] transition-colors duration-200 rounded-none px-0 leading-normal'
 
 const label =
-  'block text-[8.5px] font-black text-zinc-400 tracking-[0.32em] uppercase mb-3'
+  'block text-[10px] font-bold text-zinc-400 tracking-wider uppercase mb-2.5'
 
 export default function QuotePage() {
   /* All hooks declared unconditionally at top */
@@ -106,8 +107,9 @@ export default function QuotePage() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 
-          {/* ── COLUMN 1: Material Selection Summary ── */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* ── COLUMN 1: sticky left panel ── */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-32 space-y-5">
             <div className="bg-white border border-zinc-100 p-8 shadow-sm">
               <div className="flex items-center justify-between pb-5 border-b border-zinc-100 mb-6">
                 <h2 className="text-[10px] font-black text-[#1A1C20] tracking-[0.35em] uppercase">
@@ -196,28 +198,29 @@ export default function QuotePage() {
               </AnimatePresence>
             </div>
 
-            {/* B2B Services checklist */}
-            <div className="bg-[#1A1C20] p-8 text-white">
-              <p className="text-[8px] font-bold tracking-[0.35em] uppercase text-[#D9A05B]/60 mb-7">
+            {/* B2B Garanties — editorial light treatment */}
+            <div className="bg-zinc-50 border border-zinc-200 p-8">
+              <p className="text-[9px] font-bold tracking-wider uppercase text-[#D9A05B] mb-7">
                 Garanties Professionnelles Wood Board
               </p>
-              <ul className="space-y-5">
+              <ul className="space-y-6">
                 {[
                   { title: 'Stock permanent', desc: 'Livraison nationale rapide depuis Beni Merad, Blida.' },
                   { title: 'Tarifs B2B dégressifs', desc: 'Prix négociés selon les volumes de votre commande.' },
                   { title: 'Certifications EU', desc: 'E1, CE, ISO 9001 — conformité maximale garantie.' },
                 ].map((item) => (
-                  <li key={item.title} className="flex gap-3">
-                    <div className="w-px bg-[#D9A05B]/30 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                  <li key={item.title} className="flex gap-3.5">
+                    <div className="w-px bg-[#D9A05B]/40 flex-shrink-0 mt-0.5" aria-hidden="true" />
                     <div>
-                      <p className="text-white/80 text-xs font-semibold mb-0.5">{item.title}</p>
-                      <p className="text-white/35 text-[11px] leading-relaxed font-light">{item.desc}</p>
+                      <p className="text-[#1A1C20] text-xs font-semibold mb-1">{item.title}</p>
+                      <p className="text-zinc-500 text-[11px] leading-relaxed font-light">{item.desc}</p>
                     </div>
                   </li>
                 ))}
               </ul>
             </div>
-          </div>
+          </div>{/* end sticky wrapper */}
+          </div>{/* end left column */}
 
           {/* ── COLUMN 2: Inquiry Form ── */}
           <div className="lg:col-span-7 bg-white p-8 border border-zinc-100 shadow-sm">
@@ -393,16 +396,16 @@ export default function QuotePage() {
                   </div>
 
                   {/* Submit Button */}
-                  <div className="pt-4">
+                  <div className="pt-6">
                     <button
                       id="quote-submit-btn"
                       type="submit"
                       disabled={status === 'loading'}
-                      className="w-full flex items-center justify-center gap-3 bg-[#1A1C20] hover:bg-[#D9A05B] disabled:bg-zinc-300 disabled:cursor-not-allowed text-white text-[10px] font-bold tracking-[0.25em] uppercase py-5 transition-all duration-300"
+                      className="w-full h-14 flex items-center justify-center gap-3 bg-[#1A1C20] hover:bg-zinc-800 disabled:bg-zinc-300 disabled:cursor-not-allowed text-white text-[10px] font-bold tracking-[0.25em] uppercase transition-colors duration-200"
                     >
                       {status === 'loading' ? (
                         <>
-                          <span className="h-3.5 w-3.5 border-2 border-white/25 border-t-white rounded-full animate-spin" />
+                          <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           Envoi en cours…
                         </>
                       ) : (
@@ -412,8 +415,8 @@ export default function QuotePage() {
                         </>
                       )}
                     </button>
-                    <p className="text-center text-[10px] text-zinc-300 mt-4 tracking-wide">
-                      * Champs obligatoires — Devis personnalisé sous 24h
+                    <p className="text-center text-[10px] text-zinc-400 mt-4 tracking-wide">
+                      * Champs obligatoires — Réponse sous 24h ouvrées
                     </p>
                   </div>
                 </motion.form>
