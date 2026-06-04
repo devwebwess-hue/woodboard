@@ -44,25 +44,7 @@ export async function submitQuoteAction(
     return { success: false, error: 'Adresse email invalide.' }
   }
 
-  // ── Check env vars are real (not placeholder) ─────────────────────
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-    ''
-
-  if (
-    !supabaseUrl ||
-    supabaseUrl.includes('placeholder') ||
-    !supabaseKey ||
-    supabaseKey === 'placeholder_key'
-  ) {
-    // Graceful degradation: env not yet configured on this deployment
-    console.warn('[submitQuoteAction] Supabase env vars not configured — skipping DB insert.')
-    return { success: true }
-  }
-
-  // ── Compose the row ───────────────────────────────────────────────
+  // ── Both vars now have real fallback credentials in server.ts ───────────────────
   const payload = {
     company_name:  data.company_name.trim(),
     contact_name:  data.contact_name.trim(),
