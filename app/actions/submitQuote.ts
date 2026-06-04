@@ -77,15 +77,13 @@ export async function submitQuoteAction(
 
   // ── 4. Insert ────────────────────────────────────────────────────
   try {
-    const { data: rows, error, status, statusText } = await supabase
+    const { error, status, statusText } = await supabase
       .from('quotes')
       .insert([payload])
-      .select()
 
     console.log('[submitQuoteAction] Insert response — status:', status, statusText)
 
     if (error) {
-      // Log every field so nothing is hidden
       console.error('=== SUPABASE INSERT ERROR ===')
       console.error('code:   ', error.code)
       console.error('message:', error.message)
@@ -97,7 +95,7 @@ export async function submitQuoteAction(
       }
     }
 
-    console.log('[submitQuoteAction] SUCCESS — row id:', rows?.[0]?.id ?? 'no id returned')
+    console.log('[submitQuoteAction] SUCCESS — blind insert confirmed')
     return { success: true }
 
   } catch (insertErr) {
