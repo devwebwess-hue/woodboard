@@ -112,10 +112,6 @@ function CheckIcon() {
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function CatalogPage() {
   const [supabase] = useState(() => createClient())
-  const isSupabaseConfigured = 
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && 
-    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') &&
-    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-project')
 
   const [selectedCategory, setSelectedCategory] = useState<Category>('Tous')
   const [selectedThickness, setSelectedThickness] = useState<Thickness>('Toutes')
@@ -126,7 +122,8 @@ export default function CatalogPage() {
   const [quoteItems, setQuoteItems] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return
+    // supabase is null when env vars are missing or during SSR — fall back to mock data
+    if (!supabase) return
     const fetchProducts = async () => {
       setLoading(true)
       try {
@@ -140,7 +137,7 @@ export default function CatalogPage() {
       }
     }
     fetchProducts()
-  }, [])
+  }, [supabase])
 
   const filtered = useMemo(() => {
     return products.filter((p) => {

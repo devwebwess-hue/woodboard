@@ -50,10 +50,6 @@ const label =
 
 export default function QuotePage() {
   const [supabase] = useState(() => createClient())
-  const isSupabaseConfigured = 
-    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) && 
-    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder') &&
-    !process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('your-project')
 
   const { items, removeFromQuote, clearQuote } = useQuote()
   const [form, setForm] = useState<FormData>(INITIAL_FORM)
@@ -72,7 +68,7 @@ export default function QuotePage() {
     setStatus('loading')
     setErrorMessage('')
     try {
-      if (!isSupabaseConfigured) {
+      if (!supabase) {
         throw new Error(
           "Le service de devis en ligne n'est pas encore configuré. Veuillez nous contacter directement par téléphone au +213 (0) 00 00 00 00 ou par email à devis@woodboard.dz."
         )
